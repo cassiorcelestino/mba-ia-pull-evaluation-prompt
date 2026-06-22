@@ -9,6 +9,7 @@ langsmith==0.2.7
 # LLM Providers
 langchain-openai==0.2.14
 langchain-google-genai==2.0.8
+langchain-ollama==0.2.2
 
 # Utilities
 python-dotenv==1.0.1

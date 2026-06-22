@@ -19,6 +19,12 @@ Suporta múltiplos providers de LLM:
 - Google Gemini (gemini-2.5-flash)
 
 Configure o provider no arquivo .env através da variável LLM_PROVIDER.
+
+DOCUMENTACAO DE CAMINHO ALTERNATIVO (TEMPORARIO):
+- Foi adicionado fallback de parsing no extract_json_from_response para recuperar
+    campos numericos de respostas truncadas (comum com modelos locais em Ollama).
+- Objetivo: evitar zerar metricas por erro de parse quando o juiz retorna JSON
+    incompleto.
 """
 
 import os
@@ -43,7 +49,30 @@ def get_evaluator_llm():
 def extract_json_from_response(response_text: str) -> Dict[str, Any]:
     """
     Extrai JSON de uma resposta de LLM que pode conter texto adicional.
+
+    Inclui fallback por regex para respostas truncadas (workaround temporario).
     """
+    def _extract_float(key: str):
+        pattern = rf'"{key}"\s*:\s*([0-9]+(?:[\.,][0-9]+)?)'
+        match = re.search(pattern, response_text, flags=re.IGNORECASE)
+        if not match:
+            return None
+        raw = match.group(1).replace(",", ".")
+        try:
+            return float(raw)
+        except ValueError:
+            return None
+
+    def _extract_reasoning():
+        # Aceita resposta truncada sem aspas de fechamento.
+        match = re.search(r'"reasoning"\s*:\s*"(.*)', response_text, flags=re.IGNORECASE | re.DOTALL)
+        if not match:
+            return ""
+        reasoning = match.group(1).strip()
+        if reasoning.endswith('"'):
+            reasoning = reasoning[:-1]
+        return reasoning.strip()
+
     try:
         # Tentar parsear diretamente
         return json.loads(response_text)
@@ -58,6 +87,22 @@ def extract_json_from_response(response_text: str) -> Dict[str, Any]:
                 return json.loads(json_str)
             except json.JSONDecodeError:
                 pass
+
+        # Fallback para respostas truncadas (comum em modelos locais):
+        # tenta extrair campos numéricos e reasoning por regex.
+        recovered: Dict[str, Any] = {}
+
+        for key in ["score", "precision", "recall"]:
+            value = _extract_float(key)
+            if value is not None:
+                recovered[key] = value
+
+        reasoning = _extract_reasoning()
+        if reasoning:
+            recovered["reasoning"] = reasoning
+
+        if recovered:
+            return recovered
 
         # Se não conseguir extrair, retornar valores default
         print(f"⚠️  Não foi possível extrair JSON da resposta: {response_text[:200]}...")
