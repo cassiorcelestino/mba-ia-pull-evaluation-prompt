@@ -90,46 +90,36 @@ bug_to_user_story_v2:
     ---
     Exemplos de entrada e saída (Few-shot):
 
-    Exemplo 1 - Bug simples em e-commerce:
-    Relato: "Botão de adicionar ao carrinho não funciona no produto ID 1234."
+    Exemplo 1 - Bug em fluxo de pagamentos de beneficios:
+    Relato: "No fechamento de lote do CCS, o sistema BV rejeita pagamentos de benefícios INSS quando o favorecido tem conta com digito X, exibindo erro generico sem detalhar a causa."
     User Story:
-    **Título:** Adicionar produto ao carrinho no produto ID 1234
-    **Como** um cliente navegando na loja, **quero** adicionar produtos ao meu carrinho, **para que** eu possa continuar comprando e finalizar minha compra depois.
+    **Título:** Estabilidade no fechamento de lote CCS para pagamentos INSS
+    **Como** analista operacional de beneficios, **quero** concluir o fechamento de lote CCS sem rejeicao indevida de contas validas, **para que** os pagamentos de beneficios INSS sejam processados no prazo correto e sem retrabalho manual.
     **Critérios de aceite:**
-    - Dado que estou visualizando um produto
-    - Quando clico no botao "Adicionar ao Carrinho"
-    - Entao o produto deve ser adicionado ao carrinho
-    - E devo ver uma confirmacao visual
-    - E o contador do carrinho deve ser atualizado
+    - O fechamento de lote deve aceitar contas com digito X quando os dados cadastrais estiverem validos.
+    - Em caso de rejeicao, o sistema deve informar codigo e motivo tecnico da falha.
+    - O processo deve registrar log auditavel com identificador do lote e da transacao rejeitada.
 
-    Exemplo 2 - Bug medio em mobile:
-    Relato: "App Android trava ao carregar lista de notificações com mais de 50 itens."
+    Exemplo 2 - Bug em tributacao (TR):
+    Relato: "No sistema TR, o calculo de IOF em liquidacao antecipada esta aplicando aliquota padrao mesmo quando o produto possui regra diferenciada por faixa de prazo."
     User Story:
-    **Título:** Lista de notificações carregando sem travar no Android
-    **Como** um usuário do app Android, **quero** visualizar minhas notificações rapidamente sem travamentos, **para que** eu possa acessar informacoes importantes sem frustracao.
+    **Título:** Aplicacao correta de regra de IOF por faixa no sistema TR
+    **Como** especialista de tributacao, **quero** que o sistema TR aplique a aliquota correta de IOF conforme faixa de prazo e regra do produto, **para que** o banco calcule tributos com conformidade regulatoria e sem risco de ajuste posterior.
     **Critérios de aceite:**
-    - Dado que tenho mais de 50 notificacoes
-    - Quando abro a tela de notificacoes
-    - Entao a tela deve carregar em menos de 2 segundos
-    - E nao deve ocorrer congelamento da interface
-    **Contexto técnico:**
-    - A lista nao esta usando paginacao
-    - Os dados estao sendo carregados de uma vez na thread principal
+    - O calculo deve considerar a faixa de prazo configurada para cada produto.
+    - O sistema deve evidenciar, na memoria de calculo, a regra tributaria aplicada.
+    - Casos com regra diferenciada devem ter resultado distinto da aliquota padrao.
 
-    Exemplo 3 - Bug de UI em iOS (orientacao de tela):
-    Relato: "No iOS, ao girar o celular para landscape, o layout da tela de perfil fica quebrado."
+    Exemplo 3 - Bug com relato vago em contexto bancario:
+    Relato: "A consulta de historico de beneficios fica instavel em alguns dias do mes."
     User Story:
-    **Título:** Layout da tela de perfil em iOS no modo paisagem
-    **Como** um usuário de iOS, **quero** visualizar minha tela de perfil em modo paisagem sem quebra de layout, **para que** eu possa usar o app em qualquer orientação sem problemas visuais.
+    **Título:** Confiabilidade na consulta de historico de beneficios
+    **Como** operador de beneficios, **quero** consultar o historico de pagamentos sem instabilidade, **para que** eu possa validar informacoes do beneficiario com seguranca e rapidez no atendimento.
     **Critérios de aceite:**
-    - Dado que estou na tela de perfil no iOS
-    - Quando giro o dispositivo para modo paisagem
-    - Entao o layout deve se adaptar corretamente
-    - E todos os elementos devem permanecer visiveis e alinhados
-    - E nao deve haver sobreposicao de componentes
-    **Contexto técnico:**
-    - Problema observado em iOS ao alternar orientacao para landscape
-    - Sintoma principal: quebra visual da tela de perfil
+    - A consulta deve responder em tempo adequado em periodos de maior volume.
+    - Em caso de indisponibilidade, o sistema deve exibir mensagem clara e orientacao de nova tentativa.
+    - O evento de falha deve ser registrado com data, hora e contexto tecnico para rastreabilidade.
+    - Relato original vago: detalhar janelas criticas e volume de uso com o time operacional.
     ---
 
   user_prompt: "{bug_report}"
