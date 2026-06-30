@@ -12,7 +12,7 @@ A partir de um prompt de baixa qualidade (`bug_to_user_story_v1`), disponibiliza
 4. **Avaliar automaticamente a qualidade** das respostas geradas, por meio de LLM-as-Judge (modelo `gpt-4o-mini` para resposta e `gpt-4o` para avaliação), utilizando cinco métricas customizadas: **Helpfulness, Correctness, F1-Score, Clarity e Precision**;
 5. **Iterar sobre o prompt** até que **todas** as métricas atinjam, no mínimo, **0.80 (80%)**, validando a evolução do prompt de forma objetiva e rastreável a cada rodada de avaliação.
 
-Como resultado, o projeto demonstra de forma prática o impacto de técnicas estruturadas de Prompt Engineering na qualidade, consistência e confiabilidade das respostas de um LLM, evoluindo um prompt reprovado (média ≈ 0.48) para um prompt aprovado em todas as métricas (média final de **0.8402**), validado por testes automatizados (`pytest`) e por evidências de execução registradas no LangSmith.
+Como resultado, o projeto demonstra de forma prática o impacto de técnicas estruturadas de Prompt Engineering na qualidade, consistência e confiabilidade das respostas de um LLM, evoluindo um prompt reprovado (média ≈ 0.48) para um prompt aprovado em todas as métricas (média final de **0.8573**), validado por testes automatizados (`pytest`) e por evidências de execução registradas no LangSmith.
 
 ---
 
