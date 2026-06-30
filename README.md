@@ -90,11 +90,17 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
+# No Windows (PowerShell): copy .env.example .env
 ```
 
 Edite o `.env` com:
-- `LANGCHAIN_API_KEY` — sua chave do LangSmith
+- `LANGSMITH_API_KEY` — sua chave do LangSmith
 - `OPENAI_API_KEY` — sua chave da OpenAI
+- `USERNAME_LANGSMITH_HUB=-` — namespace que funcionou nesta entrega em conta personal
+
+Observacao:
+- Nesta entrega, a conta LangSmith personal nao permitiu publicacao publica com handle tradicional.
+- O fluxo aprovado utilizou push privado com namespace `-/bug_to_user_story_v2`, mantendo compatibilidade com o `evaluate.py` sem alterar os modulos congelados.
 
 ### 5. Fazer pull do prompt inicial (v1)
 
@@ -114,7 +120,9 @@ Edite manualmente o arquivo `prompts/bug_to_user_story_v2.yml`, aplicando as té
 python src/push_prompts.py
 ```
 
-Publica o prompt otimizado no LangSmith Prompt Hub com o nome `{seu_username}/bug_to_user_story_v2`, já com metadados (tags, descrição e técnicas utilizadas).
+Publica o prompt otimizado no LangSmith Prompt Hub com metadados (tags, descricao e tecnicas utilizadas).
+
+No fluxo aprovado desta entrega, o nome resolvido no Hub foi `-/bug_to_user_story_v2`, devido ao comportamento da conta personal no LangSmith.
 
 ### 8. Executar a avaliação
 
@@ -124,10 +132,12 @@ python src/evaluate.py
 
 Avalia o prompt v2 com base no dataset `datasets/bug_to_user_story.jsonl` (15 exemplos), calculando as 5 métricas (Helpfulness, Correctness, F1-Score, Clarity, Precision) via LLM-as-Judge.
 
+Com `USERNAME_LANGSMITH_HUB=-` no `.env`, o `evaluate.py` busca o prompt como `-/bug_to_user_story_v2`, que foi o identificador valido nesta entrega.
+
 ### 9. Rodar os testes de validação
 
 ```bash
-pytest tests/test_prompts.py
+python -m pytest tests/test_prompts.py
 ```
 
 Valida a estrutura do prompt otimizado (persona, formato, few-shot, ausência de `[TODO]`, técnicas nos metadados).
@@ -148,12 +158,12 @@ Execucao official com 15 exemplos, aprovada em todas as metricas:
 
 | Metrica | v2 (otimizado) |
 |------|------|
-| Helpfulness | 0.86 |
-| Correctness | 0.82 |
-| F1-Score | 0.80 |
-| Clarity | 0.88 |
-| Precision | 0.84 |
-| Media final | 0.8402 |
+| Helpfulness | 0.88 |
+| Correctness | 0.84 |
+| F1-Score | 0.82 |
+| Clarity | 0.90 |
+| Precision | 0.86 |
+| Media final | 0.8573 |
 | Status | APROVADO |
 
 ### Evidencia da execucao aprovada (saida do terminal)
@@ -167,27 +177,26 @@ Provider: openai
 Modelo Principal: gpt-4o-mini
 Modelo de Avaliação: gpt-4o
 
-✅ MODO OFICIAL: métricas completas via LLM-as-Judge
-✅ EVAL_MAX_EXAMPLES atual: 15
-
 ==================================================
-Prompt: local:prompts/bug_to_user_story_v2.yml
+Prompt: -/bug_to_user_story_v2
 ==================================================
 
 Métricas Derivadas:
-  - Helpfulness: 0.86 ✓
-  - Correctness: 0.82 ✓
+  - Helpfulness: 0.88 ✓
+  - Correctness: 0.84 ✓
 
 Métricas Base:
-  - F1-Score: 0.80 ✓
-  - Clarity: 0.88 ✓
-  - Precision: 0.84 ✓
+  - F1-Score: 0.82 ✓
+  - Clarity: 0.90 ✓
+  - Precision: 0.86 ✓
 
 --------------------------------------------------
-📊 MÉDIA GERAL: 0.8402
+📊 MÉDIA GERAL: 0.8573
 --------------------------------------------------
 
 ✅ STATUS: APROVADO - Todas as métricas >= 0.8
+
+✅ Todos os prompts atingiram todas as métricas >= 0.8!
 
 ✓ Confira os resultados em:
   https://smith.langchain.com/projects/mba-pull-evaluation-cassio
@@ -200,11 +209,11 @@ Métricas Base:
 | Estrutura de resposta | Inconsistente | Padronizada (Titulo + User Story + Criterios) |
 | Uso de tecnicas avancadas | Nao aplicado | Few-shot + Role Prompting + CoT interno |
 | Cobertura de requisitos | Parcial | Completa e verificavel |
-| Helpfulness | 0.45 | 0.86 |
-| Correctness | 0.52 | 0.82 |
-| F1-Score | 0.48 | 0.80 |
-| Clarity | 0.50 | 0.88 |
-| Precision | 0.46 | 0.84 |
+| Helpfulness | 0.45 | 0.88 |
+| Correctness | 0.52 | 0.84 |
+| F1-Score | 0.48 | 0.82 |
+| Clarity | 0.50 | 0.90 |
+| Precision | 0.46 | 0.86 |
 | Resultado nas metricas | Reprovado (abaixo de 0.80) | Aprovado (todas >= 0.80) |
 
 
@@ -229,26 +238,24 @@ collected 7 items
 
 tests\test_prompts.py .......                                            [100%]
 
-============================== 7 passed in 0.15s ===============================
+================================================== 7 passed in 0.19s ==================================================
 ```
 
 ✅ **7 de 7 testes aprovados** (o mínimo exigido pelo desafio era 6), confirmando que o prompt otimizado atende a todos os requisitos estruturais definidos no enunciado.
 
 ---
 
-### Historico de iteracoes (ultimas 5 ate a meta)
+### Historico de iteracoes (ciclo desta entrega)
 
-Resumo das 5 ultimas iteracoes registradas no ciclo oficial final (15 exemplos), ate atingir aprovacao:
+Resumo das iteracoes relevantes desta entrega, considerando o ciclo final ate a aprovacao oficial com 15 exemplos:
 
-| Iteracao | Data | mode | Helpfulness | Correctness | F1-Score | Clarity | Precision | Media | Status | Ajuste/Leitura |
+| Iteracao | Data | Contexto | Helpfulness | Correctness | F1-Score | Clarity | Precision | Media | Status | Ajuste/Leitura |
 |---|---|---|---:|---:|---:|---:|---:|---:|---|---|
-| R12 | 2026-06-26 | build | 0.59 | 0.32 | 0.15 | 0.70 | 0.49 | 0.4509 | fail | Regressao; confirmou instabilidade no build e necessidade de voltar ao foco oficial. |
-| R13 | 2026-06-26 | official | 0.67 | 0.64 | 0.62 | 0.69 | 0.65 | 0.6529 | fail | Prompt estava overfit para build; retomado prompt v2 geral. |
-| R14 | 2026-06-26 | official | 0.85 | 0.80 | 0.77 | 0.87 | 0.82 | 0.8238 | fail | Quase aprovacao; gap residual em F1/Correctness. |
-| R15 | 2026-06-26 | official | 0.86 | 0.82 | 0.79 | 0.88 | 0.84 | 0.8382 | fail | Faltou 0.01 em F1; aplicado ajuste minimo de cobertura. |
-| R16 | 2026-06-26 | official | 0.88 | 0.83 | 0.82 | 0.91 | 0.84 | 0.8544 | ok | Aprovacao final com todas as metricas >= 0.80. |
+| R1 | 2026-06-29 | Push inicial em conta personal | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.0000 | fail | O evaluate nao encontrou o prompt porque a conta personal publicava apenas sem namespace; foi necessario investigar o identificador aceito pelo Hub. |
+| R2 | 2026-06-29 | Push com namespace privado `-/bug_to_user_story_v2` | 0.87 | 0.82 | 0.77 | 0.89 | 0.86 | 0.8426 | fail | Fluxo Hub/evaluate resolvido; restou apenas gap de F1, indicando perda de cobertura factual em parte dos exemplos. |
+| R3 | 2026-06-29 | Ajuste final do prompt v2 e nova avaliacao oficial | 0.88 | 0.84 | 0.82 | 0.90 | 0.86 | 0.8573 | ok | Refinadas as instrucoes para preservar fatos concretos do bug e transformar esses detalhes em criterios verificaveis, elevando o F1 acima de 0.80. |
 
-Fonte de rastreabilidade: tabela de iteracoes e evidencias visuais desta propria secao.
+Fonte de rastreabilidade: logs finais de push/evaluate, saida do pytest e evidencias visuais anexadas nesta secao.
 
 ### Evidencias visuais (screenshots)
 
@@ -263,23 +270,23 @@ Devem estar visiveis nos prints:
 
 Arquivos de evidencia anexados neste repositorio:
 
-- screenshot_01_langsmith_prompt_refatorado.png
-- screenshot_02_langsmith_15exemplos.png
-- screenshot_03_langsmith_15exemplos-detalhado.png
-- screenshot_04_langsmith_traces.png
-- screenshot_05_langsmith_dasboard-traces.png
-- screenshot_06_trace_detalhado_exemplo1.png
-- screenshot_07_trace_detalhado_exemplo2.png
-- screenshot_08_trace_detalhado_exemplo3.png
+- screenshot_01_langsmith_prompt_refatorado-v2.png
+- screenshot_02_langsmith_15exemplos-v2.png
+- screenshot_03_langsmith_15exemplos-detalhado-v2.png
+- screenshot_04_langsmith_traces-v2.png
+- screenshot_05_langsmith_dasboard-traces-v2.png
+- screenshot_06_trace_detalhado_exemplo1-v2.png
+- screenshot_07_trace_detalhado_exemplo2-v2.png
+- screenshot_08_trace_detalhado_exemplo3-v2.png
 
 Evidencias:
 
-![Prompt refatorado no LangSmith](screenshot_01_langsmith_prompt_refatorado.png)
-![Dataset com 15 exemplos](screenshot_02_langsmith_15exemplos.png)
-![Detalhamento dos 15 exemplos](screenshot_03_langsmith_15exemplos-detalhado.png)
-![Tracing da execucao](screenshot_04_langsmith_traces.png)
-![Dashboard de traces](screenshot_05_langsmith_dasboard-traces.png)
-![Trace detalhado - exemplo 1](screenshot_06_trace_detalhado_exemplo1.png)
-![Trace detalhado - exemplo 2](screenshot_07_trace_detalhado_exemplo2.png)
-![Trace detalhado - exemplo 3](screenshot_08_trace_detalhado_exemplo3.png)
+![Prompt refatorado no LangSmith](screenshot_01_langsmith_prompt_refatorado-v2.png)
+![Dataset com 15 exemplos](screenshot_02_langsmith_15exemplos-v2.png)
+![Detalhamento dos 15 exemplos](screenshot_03_langsmith_15exemplos-detalhado-v2.png)
+![Tracing da execucao](screenshot_04_langsmith_traces-v2.png)
+![Dashboard de traces](screenshot_05_langsmith_dasboard-traces-v2.png)
+![Trace detalhado - exemplo 1](screenshot_06_trace_detalhado_exemplo1-v2.png)
+![Trace detalhado - exemplo 2](screenshot_07_trace_detalhado_exemplo2-v2.png)
+![Trace detalhado - exemplo 3](screenshot_08_trace_detalhado_exemplo3-v2.png)
 

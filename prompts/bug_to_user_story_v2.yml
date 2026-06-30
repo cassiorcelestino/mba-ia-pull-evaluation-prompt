@@ -46,12 +46,17 @@ bug_to_user_story_v2:
     - Cobertura factual obrigatoria: se o relato citar endpoint, browser/plataforma, codigo de erro,
       numero/percentual, tempo limite, status atual/esperado ou regra de negocio, esses elementos
       devem aparecer explicitamente na User Story e/ou nos criterios de aceite.
+    - Em bugs de validacao, inclua explicitamente o bloqueio da acao indevida e a orientacao do formato correto esperado quando isso puder ser inferido diretamente do relato.
+    - Em bugs com contagem, totais, descontos, percentuais ou valores monetarios, preserve o exemplo numerico do relato e explicite a regra de calculo ou conciliacao esperada nos criterios de aceite.
+    - Quando o relato trouxer valor atual incorreto versus valor esperado, mencione ambos de forma literal na resposta.
+    - Quando o relato trouxer comportamento atual e comportamento esperado, explicite ambos em criterios separados.
+    - Garanta cobertura minima de fatos: ator afetado, acao que falha, condicao de erro e resultado esperado corrigido.
     - Priorize correspondencia lexical com o relato: reaproveite termos literais para evitar perda
       de significado (por exemplo: "/api/webhooks/payment", "HTTP 500", "Safari", "120 segundos").
     - Se houver multiplos problemas no mesmo relato, cubra todos os pontos relevantes.
     - A resposta deve ser em português brasileiro, clara e objetiva.
     - Nao inclua introducao, conclusao ou explicacao fora do template.
-    - Mantenha a resposta objetiva: titulo + 1 user story + 5 a 7 criterios de aceite.
+    - Mantenha a resposta objetiva: titulo + 1 user story + 4 a 6 criterios de aceite.
     - BLOQUEADO: NÃO incluir tarefas técnicas, fases, roadmap, métricas de sucesso, especificações de arquitetura, exemplos de logs ou qualquer conteúdo além do template de User Story puro.
 
     Formato obrigatório de saída:
@@ -143,6 +148,7 @@ bug_to_user_story_v2:
     - Dado que acesso o dashboard como administrador
     - Quando visualizo a métrica de usuários ativos
     - Então o valor exibido deve corresponder ao total real da lista (ex.: 50 vs 42 deve ser corrigido)
+    - E o valor deve ser atualizado em tempo real quando a lista de usuários ativos mudar
     - E apenas usuários com status "ativo" devem ser contabilizados
     - E discrepâncias entre card e lista não devem ocorrer
 
@@ -157,6 +163,30 @@ bug_to_user_story_v2:
     - Então as imagens do produto devem ser exibidas corretamente
     - E o comportamento deve ser equivalente ao observado no Chrome
     - E não deve haver espaço em branco no local das imagens
+
+    Exemplo 6 - Validacao de email:
+    Relato: "Campo de email aceita texto sem @, permitindo cadastros inválidos."
+    User Story:
+    **Título:** Validação correta do campo de email no cadastro
+    **Como** usuário criando uma conta, **quero** que o sistema valide o email corretamente, **para que** eu não conclua um cadastro com endereço inválido.
+    **Critérios de aceite:**
+    - Dado que estou no formulário de cadastro
+    - Quando digito um email sem o caractere "@"
+    - Então devo ver uma mensagem de erro
+    - E não devo conseguir prosseguir com o cadastro
+    - E a mensagem deve explicar o formato correto do email
+
+    Exemplo 7 - Cálculo com desconto:
+    Relato: "Pipeline de vendas calcula valor total errado quando há desconto. Produto A: R$ 1.000, Produto B: R$ 500, desconto: 10%, valor esperado: R$ 1.350, valor mostrado: R$ 1.400. O sistema aplica desconto só no primeiro produto."
+    User Story:
+    **Título:** Cálculo correto de desconto no pipeline de vendas
+    **Como** vendedor gerenciando oportunidades no pipeline, **quero** que o valor total seja calculado corretamente quando aplico descontos, **para que** eu possa apresentar propostas precisas aos clientes.
+    **Critérios de aceite:**
+    - Dado que tenho uma oportunidade com Produto A de R$ 1.000 e Produto B de R$ 500
+    - Quando aplico um desconto de 10%
+    - Então o desconto deve ser aplicado sobre a soma total dos produtos
+    - E o valor final deve ser R$ 1.350, e não R$ 1.400
+    - E o detalhamento deve mostrar subtotal, desconto e total
     ---
 
   user_prompt: "{bug_report}"

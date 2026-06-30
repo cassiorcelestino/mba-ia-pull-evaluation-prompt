@@ -182,16 +182,10 @@ def get_llm(model: Optional[str] = None, temperature: float = 0.0):
         temperature: Temperatura para geração (padrão: 0.0 para determinístico)
 
     Returns:
-        Instância de ChatOpenAI, ChatGoogleGenerativeAI ou ChatOllama
+        Instância de ChatOpenAI ou ChatGoogleGenerativeAI
 
-        Raises:
+    Raises:
         ValueError: Se provider não for suportado ou API key não configurada
-
-        Nota sobre caminho alternativo temporario:
-        - provider=ollama foi adicionado para permitir execucao local durante
-            iteracao (economia de quota externa).
-        - OLLAMA_NUM_PREDICT controla limite de tokens de resposta para reduzir
-            latencia em testes.
     """
     provider = os.getenv('LLM_PROVIDER', 'openai').lower()
     model_name = model or os.getenv('LLM_MODEL', 'gpt-4o-mini')
@@ -212,7 +206,7 @@ def get_llm(model: Optional[str] = None, temperature: float = 0.0):
             api_key=api_key
         )
 
-    elif provider in ('google', 'gemini'):
+    elif provider == 'google':
         from langchain_google_genai import ChatGoogleGenerativeAI
 
         api_key = os.getenv('GOOGLE_API_KEY')
@@ -228,27 +222,10 @@ def get_llm(model: Optional[str] = None, temperature: float = 0.0):
             google_api_key=api_key
         )
 
-    elif provider == 'ollama':
-        from langchain_ollama import ChatOllama
-
-        base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
-        num_predict_raw = os.getenv('OLLAMA_NUM_PREDICT', '256').strip()
-        try:
-            num_predict = int(num_predict_raw) if num_predict_raw else 256
-        except ValueError:
-            num_predict = 256
-
-        return ChatOllama(
-            model=model_name,
-            temperature=temperature,
-            base_url=base_url,
-            num_predict=num_predict
-        )
-
     else:
         raise ValueError(
             f"Provider '{provider}' não suportado.\n"
-            f"Use 'openai', 'google' ou 'ollama' na variável LLM_PROVIDER do .env"
+            f"Use 'openai' ou 'google' na variável LLM_PROVIDER do .env"
         )
 
 

@@ -57,6 +57,24 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
         except Exception as e:
             print("⚠️ Push publico falhou. Iniciando fallback para nao travar o fluxo.")
             print(f"🔎 Detalhe: {e}")
+
+        # Tentativa 1.1 (compatibilidade com evaluate.py):
+        # publicar PRIVADO mantendo o namespace username/prompt.
+        # Em contas personal sem handle publico, essa estrategia costuma funcionar.
+        try:
+            print(f"🔐 Tentando push PRIVADO com namespace: {public_name}")
+            hub.push(
+                repo_full_name=public_name,
+                object=chat_prompt,
+                new_repo_is_public=False,
+                new_repo_description=description,
+                tags=tags,
+            )
+            print(f"✅ Push privado com namespace concluido: {public_name}")
+            return True
+        except Exception as e:
+            print("⚠️ Push privado com namespace tambem falhou.")
+            print(f"🔎 Detalhe: {e}")
     else:
         print("⚠️ USERNAME_LANGSMITH_HUB nao configurado. Pulando tentativa publica.")
 
